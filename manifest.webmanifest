@@ -1,0 +1,26 @@
+{
+  "name": "ASTRO DANMAKU // STELLAR ECLIPSE",
+  "short_name": "ASTRO DANMAKU",
+  "description": "Mobile-first vertical bullet-hell (danmaku) arcade shooter.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070918",
+  "theme_color": "#070918",
+  "categories": ["games", "arcade"],
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

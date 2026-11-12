@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ASTRO DANMAKU icon">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#15204d" />
+      <stop offset="60%" stop-color="#0a0e26" />
+      <stop offset="100%" stop-color="#050714" />
+    </radialGradient>
+    <linearGradient id="hull" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0fcff" />
+      <stop offset="55%" stop-color="#5ce1ff" />
+      <stop offset="100%" stop-color="#1d6ff2" />
+    </linearGradient>
+    <linearGradient id="wing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)" />
+
+  <!-- Subtle celestial targeting rings -->
+  <circle cx="256" cy="256" r="176" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.22" stroke-dasharray="10 14" />
+  <circle cx="256" cy="256" r="122" fill="none" stroke="#ff3b7f" stroke-width="2" stroke-opacity="0.25" />
+
+  <!-- Danmaku bullet fan (crimson orbs with crisp white core) -->
+  <g>
+    <circle cx="144" cy="186" r="15" fill="#ff3b7f" />
+    <circle cx="144" cy="186" r="7.5" fill="#ffffff" />
+
+    <circle cx="192" cy="144" r="16" fill="#ff3b7f" />
+    <circle cx="192" cy="144" r="8" fill="#ffffff" />
+
+    <circle cx="256" cy="126" r="18" fill="#ff3b7f" />
+    <circle cx="256" cy="126" r="9" fill="#ffffff" />
+
+    <circle cx="320" cy="144" r="16" fill="#ff3b7f" />
+    <circle cx="320" cy="144" r="8" fill="#ffffff" />
+
+    <circle cx="368" cy="186" r="15" fill="#ff3b7f" />
+    <circle cx="368" cy="186" r="7.5" fill="#ffffff" />
+  </g>
+
+  <!-- Secondary cyan & amber diamond shards -->
+  <g>
+    <polygon points="168,236 177,248 168,260 159,248" fill="#38f2ff" />
+    <polygon points="168,242 172,248 168,254 164,248" fill="#ffffff" />
+
+    <polygon points="344,236 353,248 344,260 335,248" fill="#38f2ff" />
+    <polygon points="344,242 348,248 344,254 340,248" fill="#ffffff" />
+
+    <polygon points="214,192 222,202 214,212 206,202" fill="#ffd166" />
+    <polygon points="214,197 217,202 214,207 211,202" fill="#ffffff" />
+
+    <polygon points="298,192 306,202 298,212 290,202" fill="#ffd166" />
+    <polygon points="298,197 301,202 298,207 295,202" fill="#ffffff" />
+  </g>
+
+  <!-- Player starfighter thruster plume -->
+  <polygon points="244,358 256,396 268,358" fill="#38f2ff" />
+  <polygon points="250,358 256,382 262,358" fill="#ffffff" />
+
+  <!-- Player starfighter wings & hull -->
+  <polygon points="256,232 170,354 224,344 256,362 288,344 342,354" fill="url(#wing)" />
+  <polygon points="256,210 218,340 256,356 294,340" fill="url(#hull)" />
+
+  <!-- Danmaku hitbox indicator dot -->
+  <circle cx="256" cy="302" r="14" fill="none" stroke="#ff3b7f" stroke-width="2.5" stroke-opacity="0.7" />
+  <circle cx="256" cy="302" r="8" fill="#ff2e7e" />
+  <circle cx="256" cy="302" r="4" fill="#ffffff" />
+</svg>

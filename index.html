@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#070918">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>ASTRO DANMAKU // STELLAR ECLIPSE</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  <link rel="apple-touch-icon" href="./assets/icon.svg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <main id="stage-frame" class="stage-frame" aria-label="Astro Danmaku playfield">
+      <canvas id="game-canvas" width="450" height="800"></canvas>
+
+      <!-- Subtle stage progress hairline -->
+      <div id="stage-progress-track" class="stage-progress-track hidden" aria-hidden="true">
+        <div id="stage-progress-fill" class="stage-progress-fill"></div>
+      </div>
+
+      <!-- Minimal non-intrusive top HUD -->
+      <header id="hud-top" class="hud-top hidden" aria-label="Game status">
+        <div class="hud-left">
+          <div class="hud-score-row">
+            <span class="hud-label">SCORE</span>
+            <span id="hud-score" class="hud-score tabular">0</span>
+            <span id="hud-combo" class="hud-combo tabular hidden">0x</span>
+          </div>
+          <div class="hud-pips-row">
+            <div class="pip-group" aria-label="Lives">
+              <span class="pip-tag">SHD</span>
+              <span id="hud-pips-lives" class="hud-pips"></span>
+            </div>
+            <div class="pip-group" aria-label="Bombs">
+              <span class="pip-tag">BMB</span>
+              <span id="hud-pips-bombs" class="hud-pips"></span>
+            </div>
+            <div class="pip-group" aria-label="Power">
+              <span class="pip-tag">PWR</span>
+              <span id="hud-power" class="hud-power tabular">1.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <button id="btn-hud-mute" class="icon-btn" type="button" tabindex="-1" aria-label="Toggle sound" aria-pressed="false" title="Sound">
+            <svg class="icon-svg icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <svg class="icon-svg icon-sound-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="22" y1="9" x2="16" y2="15"></line>
+              <line x1="16" y1="9" x2="22" y2="15"></line>
+            </svg>
+          </button>
+          <button id="btn-hud-pause" class="icon-btn" type="button" tabindex="-1" aria-label="Pause game" title="Pause">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="9" y1="5" x2="9" y2="19"></line>
+              <line x1="15" y1="5" x2="15" y2="19"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Boss HP Bar & Spell Card Name -->
+      <section id="boss-hud" class="boss-hud hidden" aria-label="Boss status">
+        <div class="boss-header">
+          <span id="boss-name" class="boss-name">SOLARIS ECLIPSE</span>
+          <span id="boss-phase-tag" class="boss-phase-tag tabular">PHASE 01</span>
+        </div>
+        <div class="boss-bar-track">
+          <div id="boss-hp-fill" class="boss-hp-fill"></div>
+          <div id="boss-tick-1" class="boss-phase-tick" style="left: 33%"></div>
+          <div id="boss-tick-2" class="boss-phase-tick" style="left: 66%"></div>
+        </div>
+        <div id="boss-spell-name" class="boss-spell-name"></div>
+      </section>
+
+      <!-- Large, thumb-accessible bottom-corner BOMB button -->
+      <button id="btn-bomb" class="bomb-btn hidden" type="button" tabindex="-1" aria-label="Activate Nova Bomb">
+        <span class="bomb-btn-top">
+          <span class="bomb-btn-label">BOMB</span>
+          <span id="bomb-btn-count" class="bomb-btn-count tabular">3</span>
+        </span>
+        <span class="bomb-charge-track" aria-hidden="true">
+          <span id="bomb-charge-fill" class="bomb-charge-fill"></span>
+        </span>
+      </button>
+
+      <!-- TITLE OVERLAY -->
+      <section id="overlay-title" class="overlay overlay-title" role="dialog" aria-label="Title screen">
+        <div class="overlay-card title-card">
+          <div class="brand-header">
+            <div class="brand-kicker">VERTICAL DANMAKU SHOOTER</div>
+            <h1 class="game-title">
+              <span class="title-main">ASTRO DANMAKU</span>
+              <span class="title-sub">STELLAR ECLIPSE</span>
+            </h1>
+          </div>
+
+          <div class="hi-score-row">
+            <span class="meta-label">HIGH SCORE</span>
+            <span id="title-highscore" class="hi-score-val tabular">0</span>
+          </div>
+
+          <div class="control-group">
+            <span class="group-label">DIFFICULTY</span>
+            <div id="difficulty-pills" class="pill-row" role="radiogroup" aria-label="Difficulty">
+              <button type="button" class="pill-btn" data-difficulty="EASY" aria-checked="false">EASY</button>
+              <button type="button" class="pill-btn active" data-difficulty="NORMAL" aria-checked="true">NORMAL</button>
+              <button type="button" class="pill-btn" data-difficulty="LUNATIC" aria-checked="false">LUNATIC</button>
+            </div>
+          </div>
+
+          <div class="control-row-split">
+            <div class="control-group compact">
+              <span class="group-label">SENSITIVITY</span>
+              <div id="sensitivity-pills" class="pill-row" role="radiogroup" aria-label="Touch sensitivity">
+                <button type="button" class="pill-btn active" data-sens="1" aria-checked="true">1.0x</button>
+                <button type="button" class="pill-btn" data-sens="1.25" aria-checked="false">1.25x</button>
+                <button type="button" class="pill-btn" data-sens="1.5" aria-checked="false">1.5x</button>
+              </div>
+            </div>
+
+            <div class="control-group compact sound-group">
+              <span class="group-label">AUDIO</span>
+              <button id="btn-title-mute" type="button" class="pill-btn mute-pill" aria-pressed="false">
+                <svg class="icon-svg icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <svg class="icon-svg icon-sound-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="22" y1="9" x2="16" y2="15"></line>
+                  <line x1="16" y1="9" x2="22" y2="15"></line>
+                </svg>
+                <span id="title-mute-label">ON</span>
+              </button>
+            </div>
+          </div>
+
+          <button id="btn-start" type="button" class="primary-btn">LAUNCH SORTIE</button>
+
+          <p class="touch-hint">指でドラッグ移動 / 2本指タップまたはBOMBボタンでボム</p>
+        </div>
+      </section>
+
+      <!-- PAUSE OVERLAY -->
+      <section id="overlay-pause" class="overlay overlay-modal hidden" role="dialog" aria-label="Game paused">
+        <div class="overlay-card modal-card">
+          <div class="modal-header">
+            <div class="modal-kicker">SORTIE SUSPENDED</div>
+            <h2 class="modal-title">PAUSED</h2>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-cell">
+              <span class="stat-label">SCORE</span>
+              <span id="pause-score" class="stat-val tabular">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">GRAZE</span>
+              <span id="pause-graze" class="stat-val tabular">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">MAX COMBO</span>
+              <span id="pause-combo" class="stat-val tabular">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">DIFFICULTY</span>
+              <span id="pause-diff" class="stat-val">NORMAL</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btn-resume" type="button" class="primary-btn">RESUME</button>
+            <div class="secondary-actions">
+              <button id="btn-pause-retry" type="button" class="secondary-btn">RETRY</button>
+              <button id="btn-pause-title" type="button" class="secondary-btn">TITLE</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESULT OVERLAY (GAME OVER / VICTORY) -->
+      <section id="overlay-result" class="overlay overlay-modal hidden" role="dialog" aria-label="Sortie result">
+        <div class="overlay-card modal-card">
+          <div class="modal-header">
+            <div id="result-kicker" class="modal-kicker">SORTIE TERMINATED</div>
+            <h2 id="result-title" class="modal-title">GAME OVER</h2>
+          </div>
+
+          <div id="result-new-record" class="record-tag hidden">NEW HIGH SCORE</div>
+
+          <div class="stat-grid">
+            <div class="stat-cell">
+              <span class="stat-label">FINAL SCORE</span>
+              <span id="result-score" class="stat-val tabular">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">GRAZE</span>
+              <span id="result-graze" class="stat-val tabular">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">MAX COMBO</span>
+              <span id="result-combo" class="stat-val tabular">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">DIFFICULTY</span>
+              <span id="result-diff" class="stat-val">NORMAL</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btn-result-retry" type="button" class="primary-btn">RETRY</button>
+            <button id="btn-result-title" type="button" class="secondary-btn full">TITLE</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
